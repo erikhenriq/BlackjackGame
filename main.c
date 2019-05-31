@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 #define CLUB 1
 #define DIAMOND 2
@@ -17,13 +18,11 @@ typedef struct{ int suit, rank; } card;
 typedef struct Deck{ card *c; struct Deck *next; } deck;
 typedef struct { deck *hand; int min, max; int count; } player;
 
-
 deck* add_card(deck *d, card *c);
 deck* new_deck(void);
 deck *mix(deck *d);
 deck* cut(deck* d);
 void free_deck(deck *d);
-
 
 void print_card(card *c);
 void print_deck(deck *d); 
@@ -159,19 +158,19 @@ void print_card(card *c)
     {
       switch(c->rank)
         {
-        case ACE: printf(" A"); break;
-        case JACK: printf(" J"); break;
-        case QUEEN: printf(" Q"); break;
-        case KING: printf(" K"); break;
+        case ACE: printf(" As"); break;
+        case JACK: printf(" Valete"); break;
+        case QUEEN: printf(" Rainha"); break;
+        case KING: printf(" Rei"); break;
         default: assert(0);
         }
     }
   switch(c->suit)
     {
-    case CLUB: printf("c"); break;
-    case DIAMOND: printf("d"); break;
-    case HEART: printf("h"); break;
-    case SPADE: printf("s"); break;
+    case CLUB: printf(" de Paus"); break;
+    case DIAMOND: printf(" de Ouro"); break;
+    case HEART: printf(" de Coracao"); break;
+    case SPADE: printf(" de Espada"); break;
     default: assert(0);
     }
 }
@@ -180,7 +179,8 @@ void print_deck(deck *d)
 {
   assert(d!=NULL);
   
-  /* Printa a pilha do último para o primeiro */
+  /* Printa a pilha do �ltimo para o primeiro */
+  
   while(d!=NULL)
     {
       print_card(d->c);
@@ -212,9 +212,12 @@ void update_player(player *p)
         case ACE: aces++; break;
         case KING: 
         case QUEEN:
-        case JACK: total+=10; break;
+        case JACK:  {
+	        	total+=10;
+				break;
+			}
         default: total+=d->c->rank;
-        }
+       }
 
       d=d->next;
     }
@@ -228,9 +231,8 @@ void update_player(player *p)
       p->max +=10;
       i--;
     }
-  
+    
   if(p->max > 21 && i!=aces) p->max-=10;
-  
 }
 
 deck* hit(player *p, deck *d)
@@ -261,7 +263,7 @@ int main(void)
   printf("-------------- \n");
   printf("Jogador vs Dealer \n");
   
-  srand(521);
+  srand((unsigned)time(NULL));
   
   do 
     {
@@ -270,6 +272,7 @@ int main(void)
       p.min=0;
       p.max=0;
       p.count=0;
+      
       dealer.hand=NULL;
       dealer.min=0;
       dealer.max=0;
@@ -285,8 +288,6 @@ int main(void)
       d=hit(&p,d);
       d=hit(&dealer,d);
 
-      printf("Dealer: ");
-      print_deck(dealer.hand);
       printf("\nJogador: ");
       print_deck(p.hand);
       
@@ -302,7 +303,7 @@ int main(void)
           if(input[0]=='m')
             {
               d = hit(&p,d);
-              printf("você: ");
+              printf("voce: ");
               print_deck(p.hand);
               printf("\n", p.min);
               printf("Total de cartas do Dealer : %d\n",dealer.count);
@@ -313,9 +314,10 @@ int main(void)
         }
       
       if(p.min>21) {
-      	printf("\nVocê perdeu! Dealer ganhou!!!\n");
+      	printf("\nVoce perdeu! Dealer ganhou!!!\n");
         printf("\nSeus pontos: %d vs Dealer: %d\n", p.max, dealer.max);
-  		printf("\nCartas pedidas do Dealer : %d, cartas pedidas: %d\n", dealer.count, p.count);
+        printf("\nDealer: ");
+        print_deck(dealer.hand);
 	  }
       else
         {
@@ -340,10 +342,12 @@ int main(void)
                 printf("\nJogador venceu.\n");
        			printf("\nSeus pontos: %d vs Dealer: %d\n", p.max, dealer.max);
 			  }
-            }
-  	  		printf("\nCartas pedidas do Dealer : %d, cartas pedidas: %d\n", dealer.count, p.count);
+          }
+
+          printf("\nDealer: ");
+          print_deck(dealer.hand);
         }
-      
+
       free_deck(p.hand);
       free_deck(dealer.hand);
       free_deck(d);
@@ -355,4 +359,5 @@ int main(void)
     } while(input[0]!='n');
   return 0;
 }
+
 
